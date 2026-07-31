@@ -8,12 +8,7 @@
     <BlazorDisableThrowNavigationException>true</BlazorDisableThrowNavigationException>
   </PropertyGroup>
 
-  <ItemGroup>
-    <Content Include="..\course_24 (1)\blazor snippets\Images\default.png" Link="wwwroot\images\default.png" />
-    <Content Include="..\course_24 (1)\blazor snippets\Images\lawn_leaf.jpg" Link="wwwroot\images\lawn_leaf.jpg" />
-    <Content Include="..\course_24 (1)\blazor snippets\Images\loading.gif" Link="wwwroot\images\loading.gif" />
-    <Content Include="..\course_24 (1)\blazor snippets\Images\Logo.png" Link="wwwroot\images\Logo.png" />
-  </ItemGroup>
+  
 
   <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.Diagnostics.EntityFrameworkCore" Version="10.0.10" />
