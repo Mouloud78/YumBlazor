@@ -32,7 +32,7 @@ namespace YumBlazor.Repository
             
         }
 
-        public async Task<Category> Get(int id)
+        public async Task<Category> GetAsync(int id)
         {
             var obj = await _db.Category.FirstOrDefaultAsync(u => u.Id == id);
 
@@ -49,10 +49,7 @@ namespace YumBlazor.Repository
             return await _db.Category.ToListAsync();
         }
 
-        public Task<Category> GetAsync(int id)
-        {
-            throw new NotImplementedException();
-        }
+       
 
         public async Task<Category> UpdateAsync(Category obj)
         {
