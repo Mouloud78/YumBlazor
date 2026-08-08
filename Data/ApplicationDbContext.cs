@@ -12,6 +12,7 @@ namespace YumBlazor.Data
          * Permet de créer la table dans la base de données
          */
         public DbSet<Category> Category { get; set; }
+        public DbSet<Product> Product { get; set; }
 
         /*
          * Appelée par ENtity Framework lors de la construction de la base de données, elle permet de
