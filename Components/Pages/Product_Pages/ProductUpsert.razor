@@ -3,8 +3,8 @@
 
 @inject IProductRepository _productRepository
 @inject ICategoryRepository _categoryRepository
-
 @inject NavigationManager _navigationManager
+@inject IWebHostEnvironment _webHostEnvironment
 @inject IJSRuntime _JS
 
 
@@ -42,10 +42,17 @@ else
                     </div>
 
                     <div class="form-floating py-3 col-12">
-                       <InputNumber @bind-Value="Product.Price" class="form-control" id="Price" placeholder="Price"/>
-                       <label for="Price">Price</label>
-                       <ValidationMessage For="@(()=> Product.Price)"/>
-                   </div>
+                        <InputText @bind-Value="Product.SpecialTag" class="form-control" id="SpecialTag" placeholder="Special Tag" />
+                        <label for="SpecialTag">Special Tag</label>
+                        <ValidationMessage For="@(() => Product.SpecialTag)" />
+                    </div>
+
+                    <div class="form-floating py-3 col-12">
+                        <InputNumber @bind-Value="Product.Price" class="form-control" id="Price" placeholder="Price" />
+                        <label for="Price">Price</label>
+                        <ValidationMessage For="@(() => Product.Price)" />
+                    </div>
+
 
                     <div class="form-floating py-3 col-12">
                         <InputSelect @bind-Value="Product.CategoryId" class="form-select" id="category">
@@ -58,6 +65,29 @@ else
                         <label for="category">Category</label>
                         <ValidationMessage For="@(() => Product.CategoryId)" />
                     </div>
+
+                    <div class="form-floating py-3 col-12">
+                        @if(Product.ImageUrl==null){
+                            <InputFile OnChange="LoadFiles" class="form-control  pt-3" id="customFile"
+                                       accept="image/x-png,image/jpeg">
+                            </InputFile>
+                            <label for="customFile">Upload Image</label>
+                        }
+                        @if (Product.ImageUrl != null)
+                        {
+                            <div class="row">
+                                <div class="col-3">
+                                    <img src="@Product.ImageUrl" alt="Product Image" class="img-thumbnail" />
+                                </div>
+                                <div class="col-md-9">
+                                    <i class="bi bi-trash btn btn-outline-danger" @onclick="DeleteImage">Remove</i>
+                                </div>
+                            </div>    
+                        }
+                        
+
+                    </div>
+
 
                    <div class="row mt-3">
                        <div class="col-6 col-md-3">
@@ -88,7 +118,15 @@ else
     private Product Product { get; set; } = new Product();
     private IEnumerable<Category> _categories = new List<Category>();
 
+    private string _directoryPath = string.Empty;
+
     private bool IsProcessing { get; set; } = true;
+
+    protected override Task OnInitializedAsync()
+    {
+        _directoryPath = Path.Combine(_webHostEnvironment.WebRootPath, "images", "product");
+        return base.OnInitializedAsync();
+    }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
@@ -107,7 +145,7 @@ else
             //Load the product from the database based on the Id
             Product = await _productRepository.GetAsync(Id);
         }
-        
+
         _categories = await _categoryRepository.GetAllAsync();
     }
 
@@ -130,4 +168,39 @@ else
         _navigationManager.NavigateTo("product");
     }
 
+    private async Task LoadFiles(InputFileChangeEventArgs e)
+    {
+        // IsProcessing = true;
+        var file = e.File;
+        FileInfo fileInfo = new(file.Name);
+        var newFileName = $"{Guid.NewGuid()}.{fileInfo.Extension}";
+
+        if (!Directory.Exists(_directoryPath))
+        {
+            Directory.CreateDirectory(_directoryPath);
+        }
+        var path = Path.Combine(_directoryPath, newFileName);
+
+        await using FileStream fileStream = new(path, FileMode.Create);
+        await file.OpenReadStream(file.Size).CopyToAsync(fileStream);
+        Product.ImageUrl = $"/images/product/{newFileName}";
+        // IsProcessing = false;
+    }
+
+    private void DeleteImage()
+    {
+        if(Product.ImageUrl == null)
+            return;
+        var fileToDelete = Product.ImageUrl.Split('/').Reverse().First();
+        var filePathToDeleteImage = Path.Combine(_directoryPath, fileToDelete);
+
+        if (!File.Exists(filePathToDeleteImage))
+            return;
+
+        File.Delete(filePathToDeleteImage);
+        Product.ImageUrl = null;
+        return;
+            
+       
+    }
 }
